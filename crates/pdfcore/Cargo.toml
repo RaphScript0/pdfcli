@@ -11,3 +11,8 @@ workspace = true
 [dependencies]
 anyhow.workspace = true
 thiserror.workspace = true
+lopdf = "0.34"
+which = "7"
+
+[dev-dependencies]
+tempfile = "3"
