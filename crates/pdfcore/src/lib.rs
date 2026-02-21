@@ -458,12 +458,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn info_reads_page_count_from_minimal_pdf() {
+    fn info_reads_page_count_from_minimal_pdf(
+    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
         let mut doc = lopdf::Document::with_version("1.4");
 
         // Build a minimal, well-formed, 1-page PDF.
         let pages_id = doc.new_object_id();
-        let page_id = doc.new_object_id();
+        let single_page_id = doc.new_object_id();
         let catalog_id = doc.new_object_id();
 
         doc.objects.insert(
@@ -472,14 +473,14 @@ mod tests {
                 (b"Type".to_vec(), lopdf::Object::Name(b"Pages".to_vec())),
                 (
                     b"Kids".to_vec(),
-                    lopdf::Object::Array(vec![lopdf::Object::Reference(page_id)]),
+                    lopdf::Object::Array(vec![lopdf::Object::Reference(single_page_id)]),
                 ),
                 (b"Count".to_vec(), lopdf::Object::Integer(1)),
             ])),
         );
 
         doc.objects.insert(
-            page_id,
+            single_page_id,
             lopdf::Object::Dictionary(lopdf::Dictionary::from_iter([
                 (b"Type".to_vec(), lopdf::Object::Name(b"Page".to_vec())),
                 (b"Parent".to_vec(), lopdf::Object::Reference(pages_id)),
@@ -506,11 +507,12 @@ mod tests {
         doc.trailer
             .set(b"Root", lopdf::Object::Reference(catalog_id));
 
-        let f = tempfile::NamedTempFile::new().unwrap();
-        doc.save(f.path()).unwrap();
+        let f = tempfile::NamedTempFile::new()?;
+        doc.save(f.path())?;
 
-        let i = info(f.path()).unwrap();
+        let i = info(f.path())?;
         assert_eq!(i.pages, 1);
+        Ok(())
     }
 
     fn tool_available(tool: Tool) -> bool {
@@ -518,17 +520,18 @@ mod tests {
     }
 
     #[test]
-    fn extract_text_skips_if_missing_pdftotext() {
+    fn extract_text_skips_if_missing_pdftotext(
+    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
         if !tool_available(Tool::Pdftotext) {
             eprintln!("skipping: pdftotext missing");
-            return;
+            return Ok(());
         }
 
         // Build a minimal PDF; pdftotext may output nothing but should not error.
         let mut doc = lopdf::Document::with_version("1.4");
 
         let pages_id = doc.new_object_id();
-        let page_id = doc.new_object_id();
+        let single_page_id = doc.new_object_id();
         let catalog_id = doc.new_object_id();
 
         doc.objects.insert(
@@ -537,14 +540,14 @@ mod tests {
                 (b"Type".to_vec(), lopdf::Object::Name(b"Pages".to_vec())),
                 (
                     b"Kids".to_vec(),
-                    lopdf::Object::Array(vec![lopdf::Object::Reference(page_id)]),
+                    lopdf::Object::Array(vec![lopdf::Object::Reference(single_page_id)]),
                 ),
                 (b"Count".to_vec(), lopdf::Object::Integer(1)),
             ])),
         );
 
         doc.objects.insert(
-            page_id,
+            single_page_id,
             lopdf::Object::Dictionary(lopdf::Dictionary::from_iter([
                 (b"Type".to_vec(), lopdf::Object::Name(b"Page".to_vec())),
                 (b"Parent".to_vec(), lopdf::Object::Reference(pages_id)),
@@ -571,9 +574,10 @@ mod tests {
         doc.trailer
             .set(b"Root", lopdf::Object::Reference(catalog_id));
 
-        let f = tempfile::NamedTempFile::new().unwrap();
-        doc.save(f.path()).unwrap();
+        let f = tempfile::NamedTempFile::new()?;
+        doc.save(f.path())?;
 
-        let _ = extract_text(f.path(), Option::<&std::path::Path>::None).unwrap();
+        let _ = extract_text(f.path(), Option::<&std::path::Path>::None)?;
+        Ok(())
     }
 }
