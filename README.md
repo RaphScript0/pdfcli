@@ -20,7 +20,15 @@ subcommands are added, you may need:
 Install examples:
 
 - macOS (Homebrew): `brew install qpdf poppler ghostscript`
-- Ubuntu/Debian: `apt-get install qpdf poppler-utils ghostscript`
+- Ubuntu/Debian: `sudo apt-get update && sudo apt-get install -y qpdf poppler-utils ghostscript`
+- Windows:
+  - qpdf: `choco install qpdf` (Chocolatey)
+  - poppler (pdftotext): `choco install poppler`
+  - ghostscript: `choco install ghostscript`
+
+Notes:
+- CI runs unit tests without installing these tools; tool-dependent tests should skip when missing.
+- Some tools may be named differently on different platforms/packagers.
 
 ## Build
 
@@ -47,7 +55,7 @@ OK: ./some.pdf
 ## Developer commands
 
 ```bash
-cargo fmt
-cargo clippy --workspace --all-targets
-cargo test --workspace
+cargo fmt --check
+cargo clippy --all-targets --all-features -- -D warnings
+cargo test
 ```
