@@ -1,27 +1,27 @@
-fn main() {
+fn main() -> anyhow::Result<()> {
     let mut doc = lopdf::Document::with_version("1.4");
 
-    let pages_id = doc.new_object_id();
-    let page_id = doc.new_object_id();
-    let catalog_id = doc.new_object_id();
+    let pages_tree_id = doc.new_object_id();
+    let leaf_page_id = doc.new_object_id();
+    let catalog_obj_id = doc.new_object_id();
 
     doc.objects.insert(
-        pages_id,
+        pages_tree_id,
         lopdf::Object::Dictionary(lopdf::Dictionary::from_iter([
             (b"Type".to_vec(), lopdf::Object::Name(b"Pages".to_vec())),
             (
                 b"Kids".to_vec(),
-                lopdf::Object::Array(vec![lopdf::Object::Reference(page_id)]),
+                lopdf::Object::Array(vec![lopdf::Object::Reference(leaf_page_id)]),
             ),
             (b"Count".to_vec(), lopdf::Object::Integer(1)),
         ])),
     );
 
     doc.objects.insert(
-        page_id,
+        leaf_page_id,
         lopdf::Object::Dictionary(lopdf::Dictionary::from_iter([
             (b"Type".to_vec(), lopdf::Object::Name(b"Page".to_vec())),
-            (b"Parent".to_vec(), lopdf::Object::Reference(pages_id)),
+            (b"Parent".to_vec(), lopdf::Object::Reference(pages_tree_id)),
             (
                 b"MediaBox".to_vec(),
                 lopdf::Object::Array(vec![
@@ -35,16 +35,18 @@ fn main() {
     );
 
     doc.objects.insert(
-        catalog_id,
+        catalog_obj_id,
         lopdf::Object::Dictionary(lopdf::Dictionary::from_iter([
             (b"Type".to_vec(), lopdf::Object::Name(b"Catalog".to_vec())),
-            (b"Pages".to_vec(), lopdf::Object::Reference(pages_id)),
+            (b"Pages".to_vec(), lopdf::Object::Reference(pages_tree_id)),
         ])),
     );
 
     doc.trailer
-        .set(b"Root", lopdf::Object::Reference(catalog_id));
+        .set(b"Root", lopdf::Object::Reference(catalog_obj_id));
 
-    doc.save("sample.pdf").unwrap();
+    doc.save("sample.pdf")?;
     eprintln!("wrote sample.pdf");
+
+    Ok(())
 }
