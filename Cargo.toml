@@ -1,0 +1,27 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/pdfcore",
+  "crates/pdfcli",
+]
+
+[workspace.package]
+edition = "2021"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/raphScript0/pdfcli"
+
+[workspace.dependencies]
+anyhow = "1"
+thiserror = "2"
+clap = { version = "4", features = ["derive"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace.lints.clippy]
+pedantic = { level = "warn", priority = -1 }
+unwrap_used = "warn"
+expect_used = "warn"
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"

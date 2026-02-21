@@ -1,0 +1,14 @@
+[package]
+name = "pdfcli"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+pdfcore = { path = "../pdfcore" }
