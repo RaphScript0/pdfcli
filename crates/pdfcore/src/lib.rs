@@ -458,7 +458,8 @@ mod tests {
     use super::*;
 
     #[test]
-    fn info_reads_page_count_from_minimal_pdf() -> anyhow::Result<()> {
+    fn info_reads_page_count_from_minimal_pdf(
+    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
         let mut doc = lopdf::Document::with_version("1.4");
 
         // Build a minimal, well-formed, 1-page PDF.
@@ -519,7 +520,8 @@ mod tests {
     }
 
     #[test]
-    fn extract_text_skips_if_missing_pdftotext() -> anyhow::Result<()> {
+    fn extract_text_skips_if_missing_pdftotext(
+    ) -> std::result::Result<(), Box<dyn std::error::Error>> {
         if !tool_available(Tool::Pdftotext) {
             eprintln!("skipping: pdftotext missing");
             return Ok(());
